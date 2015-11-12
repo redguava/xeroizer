@@ -549,6 +549,20 @@ client = Xeroizer::PublicApplication.new(YOUR_OAUTH_CONSUMER_KEY,
                                          :rate_limit_sleep => 2)
 ```
 
+HTTP Callbacks
+--------------------
+
+You can provide an "around" callback which will be invoked every
+time Xeroizer makes an HTTP request, which is potentially useful for both
+throttling and logging:
+
+```ruby
+Xeroizer::PublicApplication.new(
+  credentials[:key], credentials[:secret],
+	around_request: -> (&block)  { puts 'About to send request'; block.call; puts 'After request'}
+)
+```
+
 
 ### Contributors
 Xeroizer was inspired by the https://github.com/tlconnor/xero_gateway gem created by Tim Connor 

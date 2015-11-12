@@ -85,10 +85,12 @@ module Xeroizer
           attempts += 1
           logger.info("\n== [#{Time.now.to_s}] XeroGateway Request: #{method.to_s.upcase} #{uri.request_uri} ") if self.logger
 
-          response = case method
-            when :get   then    client.get(uri.request_uri, headers)
-            when :post  then    client.post(uri.request_uri, { :xml => body }, headers)
-            when :put   then    client.put(uri.request_uri, { :xml => body }, headers)
+          response = with_around_request do
+            case method
+              when :get   then    client.get(uri.request_uri, headers)
+              when :post  then    client.post(uri.request_uri, { :xml => body }, headers)
+              when :put   then    client.put(uri.request_uri, { :xml => body }, headers)
+            end
           end
 
           if self.logger
@@ -124,7 +126,15 @@ module Xeroizer
           end
         end
       end
-       
+
+      def with_around_request(&block)
+        if around_request
+          around_request.call(&block)
+        else
+          block.call
+        end
+      end
+
       def handle_oauth_error!(response)
         error_details = CGI.parse(response.plain_body)
         description   = error_details["oauth_problem_advice"].first
