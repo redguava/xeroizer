@@ -114,6 +114,10 @@ module Xeroizer
           saved!
         end
 
+        def save!
+          raise XeroizerError, 'Unable to save!' unless save
+        end
+
         def saved!
           @complete_record_downloaded = true
           parent.mark_clean(self)
